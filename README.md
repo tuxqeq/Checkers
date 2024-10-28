@@ -1,1 +1,1 @@
-# Checkers
+# CheckersBoard

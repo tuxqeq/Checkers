@@ -1,4 +1,4 @@
-package Gpt;
+package Game;
 
 public class JNIHandler {
     static { System.loadLibrary("ChekersLib"); }

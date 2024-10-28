@@ -1,4 +1,4 @@
-package Gpt;
+package Game;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;

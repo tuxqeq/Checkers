@@ -1,8 +1,9 @@
-package Gpt;
+package Game;
 import javax.swing.*;
 import java.awt.*;
 
 public class CheckersMain {
+
     public static void main(String[] args) {
         // Initialize JNI handler and data model
         JNIHandler jniHandler = new JNIHandler();
@@ -13,7 +14,7 @@ public class CheckersMain {
 
 
         // Set up the main frame
-        JFrame frame = new JFrame("Checkers");
+        JFrame frame = new JFrame("Game");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
         frame.setResizable(false);

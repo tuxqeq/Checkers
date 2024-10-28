@@ -1,9 +1,8 @@
-package Gpt;
+package Game;
 
 import javax.swing.*;
 import javax.swing.table.TableCellRenderer;
 import java.awt.*;
-import java.util.Arrays;
 
 class MyView extends JPanel implements TableCellRenderer {
     private int cellValue;

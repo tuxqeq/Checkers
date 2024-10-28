@@ -16,7 +16,7 @@ public class CheckersMouseListener extends MouseAdapter {
     }
 
     @Override
-    public void mouseClicked(MouseEvent e) {
+    public void mousePressed(MouseEvent e) {
         int row = e.getY() / jTable.getRowHeight();
         int col = e.getX() / jTable.getColumnModel().getColumn(0).getWidth();
 

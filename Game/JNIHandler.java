@@ -6,9 +6,6 @@ public class JNIHandler {
     // Initializes the game board in C++
     public native void initializeGame();
 
-    // Returns the entire board state as a 2D array
-    public native int[][] getBoardState();
-
     // Returns the coordinates of the selected piece, or null if none is selected
     public native int[] getSelectedPiece();
 

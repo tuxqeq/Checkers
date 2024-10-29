@@ -4,8 +4,8 @@
 #include <jni.h>
 
 const int BOARD_SIZE = 8;
-
-enum Piece { EMPTY, BLACK, WHITE, RED_KING, BLACK_KING };
+//RED = BLACK, BLACK = WHITE
+enum Piece { EMPTY, BLACK, WHITE, BLACK_KING, WHITE_KING };
 
 // Static variables to hold game state
 static inline std::vector<std::vector<Piece>> board(BOARD_SIZE, std::vector<Piece>(BOARD_SIZE, EMPTY));
@@ -40,26 +40,27 @@ static inline bool isValidMove(int startX, int startY, int endX, int endY) {
     if (piece == EMPTY || board[endX][endY] != EMPTY) return false;
 
     // Ensure the move is made by the correct player
-    if ((piece == BLACK || piece == RED_KING) && currentTurn != BLACK) return false;
-    if ((piece == WHITE || piece == BLACK_KING) && currentTurn != WHITE) return false;
+    if ((piece == BLACK || piece == BLACK_KING) and currentTurn != BLACK) return false;
+    if ((piece == WHITE || piece == WHITE_KING) and currentTurn != WHITE) return false;
 
     int dx = endX - startX;
     int dy = endY - startY;
 
-    if ((piece != EMPTY and board[endX][endY] == EMPTY) && abs(dx) == 1 && abs(dy) == 1) return true;
+    if ((piece == WHITE and board[endX][endY] == EMPTY) and dx == -1 and abs(dy) == 1) return true;
+    if ((piece == BLACK and board[endX][endY] == EMPTY) and dx == 1 and abs(dy) == 1) return true;
 
     // Check if this is a capturing (jump) move
-    bool isJump = (abs(dx) == 2 && abs(dy) == 2);
+    bool isJump = (abs(dx) == 2 and abs(dy) == 2);
 
     // Restrict non-jump moves for regular pieces to forward only
     if (!isJump) {
-        if (piece == BLACK && dx != -1) return false;  // RED can only move "up" (dx = -1)
-        if (piece == WHITE && dx != 1) return false; // BLACK can only move "down" (dx = +1)
+        if (piece == BLACK and dx != -1) return false;  // RED can only move "up" (dx = -1)
+        if (piece == WHITE and dx != 1) return false; // BLACK can only move "down" (dx = +1)
     }
 
     // Simple move (one cell diagonally)
-    if (!isJump && abs(dx) == 1 && abs(dy) == 1) {
-        return piece == BLACK || piece == WHITE || piece == RED_KING || piece == BLACK_KING;
+    if (!isJump and abs(dx) == 1 && abs(dy) == 1) {
+        return piece == BLACK || piece == WHITE || piece == BLACK_KING || piece == WHITE_KING;
     }
 
     // Capture move (two cells diagonally with opponent's piece in between)
@@ -69,8 +70,8 @@ static inline bool isValidMove(int startX, int startY, int endX, int endY) {
         Piece middlePiece = board[midX][midY];
 
         // Check if the middle piece is an opponent's piece
-        if ((piece == BLACK || piece == RED_KING) && (middlePiece == WHITE || middlePiece == BLACK_KING)) return true;
-        if ((piece == WHITE || piece == BLACK_KING) && (middlePiece == BLACK || middlePiece == RED_KING)) return true;
+        if ((piece == BLACK || piece == BLACK_KING) and (middlePiece == WHITE || middlePiece == WHITE_KING)) return true;
+        if ((piece == WHITE || piece == WHITE_KING) and (middlePiece == BLACK || middlePiece == BLACK_KING)) return true;
     }
 
     return false;
@@ -94,12 +95,12 @@ static inline void handleClick(int x, int y) {
         if (board[x][y] != EMPTY) {
             Piece piece = board[x][y];
             // Only allow selecting pieces that belong to the current player
-            if ((piece == WHITE || piece == BLACK_KING) && currentTurn == WHITE) {
+            if ((piece == WHITE || piece == WHITE_KING) && currentTurn == WHITE) {
                 selectedX = x;
                 selectedY = y;
                 pieceSelected = true;
             }
-            else if ((piece == BLACK || piece == RED_KING) && currentTurn == BLACK) {
+            else if ((piece == BLACK || piece == BLACK_KING) && currentTurn == BLACK) {
                 selectedX = x;
                 selectedY = y;
                 pieceSelected = true;
@@ -114,8 +115,8 @@ static inline void handleClick(int x, int y) {
             board[selectedX][selectedY] = EMPTY;
 
             // Promote to king if reaching the opposite side
-            if ((x == 0 && board[x][y] == BLACK) || (x == BOARD_SIZE - 1 && board[x][y] == WHITE)) {
-                board[x][y] = (board[x][y] == BLACK) ? RED_KING : BLACK_KING;
+            if ((x == BOARD_SIZE-1 && board[x][y] == BLACK) || (x == 0 && board[x][y] == WHITE)) {
+                board[x][y] = (board[x][y] == BLACK) ? BLACK_KING : WHITE_KING;
             }
 
             // Switch turns after a successful move

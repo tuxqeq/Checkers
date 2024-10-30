@@ -21,7 +21,6 @@ class MyView extends JPanel implements TableCellRenderer {
         }
         if ((jni.getSelectedPiece()[0] == row && jni.getSelectedPiece()[1] == column)) this.isSelected = true;
         else this.isSelected = false;
-        //System.out.println(row + " " + column + " : " + cellValue + " : " + jni.getSelectedPiece()[0] + " " + jni.getSelectedPiece()[1] + " : " + isSelected);
         return this;
     }
 
@@ -44,7 +43,7 @@ class MyView extends JPanel implements TableCellRenderer {
                 g.setColor(Color.BLACK);
                 g.fillOval(13, 13, getWidth() - 26, getHeight() - 26);
                 break;
-            case 4: // white_king piece
+            case 4: // White king piece
                 g.setColor(new Color(120, 70, 0 , 255));
                 g.fillOval(10, 10, getWidth() - 20, getHeight() - 20);
                 g.setColor(Color.WHITE);

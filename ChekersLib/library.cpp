@@ -34,6 +34,8 @@ static inline void initializeBoard() {
     currentTurn = WHITE;
 }
 
+
+
 static inline auto kingMove(int startX, int startY, int endX, int endY) {
     int dx = (endX > startX) ? 1 : -1;
     int dy = (endY > startY) ? 1 : -1;
@@ -105,6 +107,21 @@ static inline bool isValidMove(int startX, int startY, int endX, int endY) {
     return false;
 }
 
+static inline bool canCaptureAgain(int x, int y) {
+    Piece piece = board[x][y];
+    int directions[4][2] = { {2, 2}, {2, -2}, {-2, 2}, {-2, -2} };
+
+    for (const auto& direction : directions) {
+        int newX = x + direction[0];
+        int newY = y + direction[1];
+        if (newX >= 0 && newX < BOARD_SIZE && newY >= 0 && newY < BOARD_SIZE) {
+            if (isValidMove(x, y, newX, newY)) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
 
 // Capture the opponent's piece
 static inline void capturePiece(int startX, int startY, int endX, int endY) {
@@ -147,23 +164,32 @@ static inline void handleClick(int x, int y) {
         }
     } else {
         if (isValidMove(selectedX, selectedY, x, y)) {
-            if (abs(x - selectedX) >= 2 && abs(y - selectedY) >= 2) {
+            bool wasCapture = (abs(x - selectedX) == 2 && abs(y - selectedY) == 2);
+            if (wasCapture) {
                 capturePiece(selectedX, selectedY, x, y);  // Capture move
             }
             board[x][y] = board[selectedX][selectedY];
             board[selectedX][selectedY] = EMPTY;
 
             // Promote to king if reaching the opposite side
-            if ((x == BOARD_SIZE-1 && board[x][y] == BLACK) || (x == 0 && board[x][y] == WHITE)) {
+            if ((x == BOARD_SIZE - 1 && board[x][y] == BLACK) || (x == 0 && board[x][y] == WHITE)) {
                 board[x][y] = (board[x][y] == BLACK) ? BLACK_KING : WHITE_KING;
             }
 
-            // Switch turns after a successful move
-            switchTurn();
+            // If another capture is available, keep the piece selected for multi-capture
+            if (wasCapture && canCaptureAgain(x, y)) {
+                selectedX = x;
+                selectedY = y;
+            } else {
+                pieceSelected = false;
+                switchTurn();  // Only switch turns after the final capture
+            }
+        } else {
+            pieceSelected = false;  // Deselect if move is invalid
         }
-        pieceSelected = false;
     }
 }
+
 
 // Get the piece at a specific cell
 static inline int getPieceAt(int x, int y) {

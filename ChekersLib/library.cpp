@@ -48,19 +48,14 @@ static inline bool isValidMove(int startX, int startY, int endX, int endY) {
 
     if ((piece == WHITE and board[endX][endY] == EMPTY) and dx == -1 and abs(dy) == 1) return true;
     if ((piece == BLACK and board[endX][endY] == EMPTY) and dx == 1 and abs(dy) == 1) return true;
-
+    if((piece == BLACK_KING || piece == WHITE_KING) and abs(dx)==abs(dy)) return true;
     // Check if this is a capturing (jump) move
     bool isJump = (abs(dx) == 2 and abs(dy) == 2);
 
     // Restrict non-jump moves for regular pieces to forward only
     if (!isJump) {
-        if (piece == BLACK and dx != -1) return false;  // RED can only move "up" (dx = -1)
-        if (piece == WHITE and dx != 1) return false; // BLACK can only move "down" (dx = +1)
-    }
-
-    // Simple move (one cell diagonally)
-    if (!isJump and abs(dx) == 1 && abs(dy) == 1) {
-        return piece == BLACK || piece == WHITE || piece == BLACK_KING || piece == WHITE_KING;
+        if (piece == WHITE and dx != 1) return false;  // WHITE can only move "up" (dx = -1)
+        if (piece == BLACK and dx != -1) return false; // BLACK can only move "down" (dx = +1)
     }
 
     // Capture move (two cells diagonally with opponent's piece in between)

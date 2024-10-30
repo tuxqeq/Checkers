@@ -31,9 +31,36 @@ static inline void initializeBoard() {
             }
         }
     }
+    board[5][4] = WHITE_KING;
     currentTurn = WHITE;
 }
 
+static inline auto kingMove(int startX, int startY, int endX, int endY){
+    int dx = endX - startX;
+    int dy = endY - startY;
+    std::vector<std::pair<int, int>> result;
+    int x = startX;
+    int y = startY;
+    while (x != endX and y != endY){
+        if(board[x][y] != EMPTY){
+            result.push_back(std::make_pair(x, y));
+        }
+        if (dx > 0 and dy > 0) {
+            ++x;
+            ++y;
+        }else if (dx > 0 and dy < 0) {
+            ++x;
+            --y;
+        }else if (dx < 0 and dy > 0) {
+            --x;
+            ++y;
+        }else if (dx < 0 and dy < 0) {
+            --x;
+            --y;
+        }
+    }
+    return result;
+}
 // Check if the move is valid, allowing backward jumps but restricting regular checkers from moving backward without capturing
 static inline bool isValidMove(int startX, int startY, int endX, int endY) {
     Piece piece = board[startX][startY];
@@ -48,15 +75,8 @@ static inline bool isValidMove(int startX, int startY, int endX, int endY) {
 
     if ((piece == WHITE and board[endX][endY] == EMPTY) and dx == -1 and abs(dy) == 1) return true;
     if ((piece == BLACK and board[endX][endY] == EMPTY) and dx == 1 and abs(dy) == 1) return true;
-    if((piece == BLACK_KING || piece == WHITE_KING) and abs(dx)==abs(dy)) return true;
     // Check if this is a capturing (jump) move
-    bool isJump = (abs(dx) == 2 and abs(dy) == 2);
-
-    // Restrict non-jump moves for regular pieces to forward only
-    if (!isJump) {
-        if (piece == WHITE and dx != 1) return false;  // WHITE can only move "up" (dx = -1)
-        if (piece == BLACK and dx != -1) return false; // BLACK can only move "down" (dx = +1)
-    }
+    bool isJump = (abs(dx) == 2 and abs(dy) == 2) and (piece == BLACK or piece == WHITE);
 
     // Capture move (two cells diagonally with opponent's piece in between)
     if (isJump) {
@@ -65,18 +85,41 @@ static inline bool isValidMove(int startX, int startY, int endX, int endY) {
         Piece middlePiece = board[midX][midY];
 
         // Check if the middle piece is an opponent's piece
-        if ((piece == BLACK || piece == BLACK_KING) and (middlePiece == WHITE || middlePiece == WHITE_KING)) return true;
-        if ((piece == WHITE || piece == WHITE_KING) and (middlePiece == BLACK || middlePiece == BLACK_KING)) return true;
+        if ((piece == BLACK) and (middlePiece == WHITE || middlePiece == WHITE_KING)) return true;
+        if ((piece == WHITE) and (middlePiece == BLACK || middlePiece == BLACK_KING)) return true;
+    }
+    auto kingMv = kingMove(startX, startY, endX, endY);
+
+    if ((piece == BLACK_KING || piece == WHITE_KING) && abs(dx) == abs(dy)) {
+        auto kingMv = kingMove(startX, startY, endX, endY);
+        int opponentCount = 0;
+        for (const auto &pos : kingMv) {
+            Piece middlePiece = board[pos.first][pos.second];
+            if ((piece == BLACK_KING && (middlePiece == WHITE || middlePiece == WHITE_KING)) ||
+                (piece == WHITE_KING && (middlePiece == BLACK || middlePiece == BLACK_KING))) {
+                opponentCount++;
+            }
+        }
+        return opponentCount == 1;
     }
 
     return false;
 }
 
+
 // Capture the opponent's piece
 static inline void capturePiece(int startX, int startY, int endX, int endY) {
-    int midX = (startX + endX) / 2;
-    int midY = (startY + endY) / 2;
-    board[midX][midY] = EMPTY;  // Remove the captured piece
+    auto kingMv = kingMove(startX, startY, endX, endY);
+    if (board[startX][startY] == BLACK or board[startX][startY] == WHITE){
+        int midX = (startX + endX) / 2;
+        int midY = (startY + endY) / 2;
+        board[midX][midY] = EMPTY;
+    }
+    if ((board[startX][startY] == BLACK_KING || board[startX][startY] == WHITE_KING) && !kingMv.empty()) {
+        for (const auto &pos : kingMv) {
+            board[pos.first][pos.second] = EMPTY;
+        }
+    } // Remove the captured piece
 }
 
 // Switch turn after a valid move

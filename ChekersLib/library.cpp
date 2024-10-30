@@ -35,32 +35,29 @@ static inline void initializeBoard() {
     currentTurn = WHITE;
 }
 
-static inline auto kingMove(int startX, int startY, int endX, int endY){
-    int dx = endX - startX;
-    int dy = endY - startY;
+static inline auto kingMove(int startX, int startY, int endX, int endY) {
+    int dx = (endX > startX) ? 1 : -1;
+    int dy = (endY > startY) ? 1 : -1;
     std::vector<std::pair<int, int>> result;
-    int x = startX;
-    int y = startY;
-    while (x != endX and y != endY){
-        if(board[x][y] != EMPTY){
-            result.push_back(std::make_pair(x, y));
+
+    int x = startX + dx;
+    int y = startY + dy;
+    bool foundOpponent = false;
+
+    while (x != endX && y != endY) {
+        if (board[x][y] != EMPTY) {
+            if (foundOpponent) return result; // Invalid if more than one piece in the way
+            foundOpponent = true;
+            result.push_back({x, y});
         }
-        if (dx > 0 and dy > 0) {
-            ++x;
-            ++y;
-        }else if (dx > 0 and dy < 0) {
-            ++x;
-            --y;
-        }else if (dx < 0 and dy > 0) {
-            --x;
-            ++y;
-        }else if (dx < 0 and dy < 0) {
-            --x;
-            --y;
-        }
+        x += dx;
+        y += dy;
     }
-    return result;
+
+    // Valid only if exactly one opponent piece was found
+    return foundOpponent ? result : std::vector<std::pair<int, int>>{};
 }
+
 // Check if the move is valid, allowing backward jumps but restricting regular checkers from moving backward without capturing
 static inline bool isValidMove(int startX, int startY, int endX, int endY) {
     Piece piece = board[startX][startY];
@@ -98,10 +95,13 @@ static inline bool isValidMove(int startX, int startY, int endX, int endY) {
             if ((piece == BLACK_KING && (middlePiece == WHITE || middlePiece == WHITE_KING)) ||
                 (piece == WHITE_KING && (middlePiece == BLACK || middlePiece == BLACK_KING))) {
                 opponentCount++;
+            } else if (middlePiece != EMPTY) {
+                return false; // Other pieces blocking path make the move invalid
             }
         }
-        return opponentCount == 1;
+        return opponentCount == 1;  // Only allow if exactly one opponent is in the way
     }
+
 
     return false;
 }
@@ -109,18 +109,20 @@ static inline bool isValidMove(int startX, int startY, int endX, int endY) {
 
 // Capture the opponent's piece
 static inline void capturePiece(int startX, int startY, int endX, int endY) {
-    auto kingMv = kingMove(startX, startY, endX, endY);
-    if (board[startX][startY] == BLACK or board[startX][startY] == WHITE){
+    auto kingMv= kingMove(startX, startY, endX, endY);
+    if (!kingMv.empty()) {
+        for (const auto &pos : kingMv) {
+            board[pos.first][pos.second] = EMPTY;
+        }
+    } else {
+        // Normal capture for regular pieces
         int midX = (startX + endX) / 2;
         int midY = (startY + endY) / 2;
         board[midX][midY] = EMPTY;
     }
-    if ((board[startX][startY] == BLACK_KING || board[startX][startY] == WHITE_KING) && !kingMv.empty()) {
-        for (const auto &pos : kingMv) {
-            board[pos.first][pos.second] = EMPTY;
-        }
-    } // Remove the captured piece
 }
+
+
 
 // Switch turn after a valid move
 static inline void switchTurn() {
@@ -146,7 +148,7 @@ static inline void handleClick(int x, int y) {
         }
     } else {
         if (isValidMove(selectedX, selectedY, x, y)) {
-            if (abs(x - selectedX) == 2 && abs(y - selectedY) == 2) {
+            if (abs(x - selectedX) >= 2 && abs(y - selectedY) >= 2) {
                 capturePiece(selectedX, selectedY, x, y);  // Capture move
             }
             board[x][y] = board[selectedX][selectedY];

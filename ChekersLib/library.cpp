@@ -31,7 +31,6 @@ static inline void initializeBoard() {
             }
         }
     }
-    board[5][4] = WHITE_KING;
     currentTurn = WHITE;
 }
 

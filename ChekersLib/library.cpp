@@ -126,6 +126,22 @@ static inline bool canCaptureAgain(int x, int y) {
     return false;
 }
 
+static inline bool hasCaptureMove() {
+    for (int i = 0; i < BOARD_SIZE; ++i) {
+        for (int j = 0; j < BOARD_SIZE; ++j) {
+            Piece piece = board[i][j];
+            if ((piece == BLACK || piece == BLACK_KING) && currentTurn == BLACK ||
+                (piece == WHITE || piece == WHITE_KING) && currentTurn == WHITE) {
+                // Check if the piece has a capture move
+                if (canCaptureAgain(i, j)) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
 // Capture the opponent's piece
 static inline void capturePiece(int startX, int startY, int endX, int endY) {
     auto kingMv= kingMove(startX, startY, endX, endY);
@@ -148,48 +164,68 @@ static inline void switchTurn() {
     currentTurn = (currentTurn == BLACK) ? WHITE : BLACK;
 }
 
+static inline bool canMove(int x, int y) {
+    Piece piece = board[x][y];
+    if (piece == EMPTY) return false;
+
+    std::vector<std::pair<int, int>> directions = {
+            {1, 1}, {1, -1}, {-1, 1}, {-1, -1},  // Regular moves for all pieces
+            {2, 2}, {2, -2}, {-2, 2}, {-2, -2}   // Capture moves for all pieces
+    };
+
+    // For each direction, check if there is a valid move
+    for (const auto& direction : directions) {
+        int newX = x + direction.first;
+        int newY = y + direction.second;
+        if (newX >= 0 && newX < BOARD_SIZE && newY >= 0 && newY < BOARD_SIZE) {
+            if (isValidMove(x, y, newX, newY)) {
+                return true;  // Return true as soon as we find one valid move
+            }
+        }
+    }
+    return false;  // No valid moves found
+}
 // Handle user click, selecting or moving a piece
 static inline void handleClick(int x, int y) {
+    bool captureAvailable = hasCaptureMove();  // Check if any capture is available for the current player
+
     if (!pieceSelected) {
         if (board[x][y] != EMPTY) {
             Piece piece = board[x][y];
-            // Only allow selecting pieces that belong to the current player
-            if ((piece == WHITE || piece == WHITE_KING) && currentTurn == WHITE) {
-                selectedX = x;
-                selectedY = y;
-                pieceSelected = true;
-            }
-            else if ((piece == BLACK || piece == BLACK_KING) && currentTurn == BLACK) {
+            // Allow selection if it's the player's turn, has moves, and if captures are available, only allow pieces that can capture
+            if (((piece == WHITE || piece == WHITE_KING) && currentTurn == WHITE ||
+                 (piece == BLACK || piece == BLACK_KING) && currentTurn == BLACK) &&
+                (!captureAvailable || canCaptureAgain(x, y)) &&
+                canMove(x, y)) {  // Only allow selecting pieces that can move
                 selectedX = x;
                 selectedY = y;
                 pieceSelected = true;
             }
         }
     } else {
-        if (isValidMove(selectedX, selectedY, x, y)) {
-            bool wasCapture = (abs(x - selectedX) >= 2 && abs(y - selectedY) >= 2);
-            if (wasCapture) {
-                capturePiece(selectedX, selectedY, x, y);  // Capture move
+        bool isMoveCapture = (abs(x - selectedX) >= 2 && abs(y - selectedY) >= 2);
+
+        // Allow move only if it's a capture when capture is mandatory
+        if ((!captureAvailable || isMoveCapture) && isValidMove(selectedX, selectedY, x, y)) {
+            if (isMoveCapture) {
+                capturePiece(selectedX, selectedY, x, y);
             }
             board[x][y] = board[selectedX][selectedY];
             board[selectedX][selectedY] = EMPTY;
 
-            // Promote to king if reaching the opposite side
+            // Promote to King if reaching the opposite side
             if ((x == BOARD_SIZE - 1 && board[x][y] == BLACK) || (x == 0 && board[x][y] == WHITE)) {
                 board[x][y] = (board[x][y] == BLACK) ? BLACK_KING : WHITE_KING;
             }
 
-            // If another capture is available, keep the piece selected for multi-capture
-            if (wasCapture && canCaptureAgain(x, y)) {
+            if (isMoveCapture && canCaptureAgain(x, y)) {
                 selectedX = x;
                 selectedY = y;
             } else {
                 pieceSelected = false;
-                switchTurn();  // Only switch turns after the final capture
+                switchTurn();
             }
-        } /*else {
-            pieceSelected = false;  // Deselect if move is invalid
-        }*/
+        }
     }
 }
 

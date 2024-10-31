@@ -49,7 +49,7 @@ public class CheckersMain {
         checkersTable.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                listener.toggleMode();
+                listener.toggleModeMouse();
             }
         });
         // Pass listener to view for selection tracking

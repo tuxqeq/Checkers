@@ -14,7 +14,7 @@ public class CheckersMouseListener extends MouseAdapter implements KeyListener {
     private int selectedRow = 0;
     private int selectedCol = 0;
     private boolean keyboardMode = false;
-    private MyView view;// Tracks if keyboard mode is active
+    private MyView view;
 
     public CheckersMouseListener(JTable jTable, JNIHandler jni, MyView view) {
         this.jTable = jTable;
@@ -22,6 +22,15 @@ public class CheckersMouseListener extends MouseAdapter implements KeyListener {
         this.view = view;
     }
 
+
+    public void toggleModeMouse() {
+        if(keyboardMode){
+            keyboardMode = !keyboardMode;
+            System.out.println("Mode switched to " +  "Mouse");
+            view.setSelectedCell(-1, -1);
+            jTable.repaint();
+        }
+    }
     // Enable or disable keyboard mode
     public void toggleMode() {
         keyboardMode = !keyboardMode;

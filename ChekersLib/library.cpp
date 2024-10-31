@@ -4,7 +4,6 @@
 #include <jni.h>
 
 const int BOARD_SIZE = 8;
-//RED = BLACK, BLACK = WHITE
 enum Piece { EMPTY, BLACK, WHITE, BLACK_KING, WHITE_KING };
 
 // Static variables to hold game state
@@ -15,7 +14,7 @@ static inline Piece currentTurn = WHITE;  // Track the current player's turn
 
 // Initialize the game board
 static inline void initializeBoard() {
-    // Place red pieces (white checkers)
+    // Place white checkers
     for (int i = 0; i < 3; ++i) {
         for (int j = 0; j < BOARD_SIZE; ++j) {
             if ((i + j) % 2 == 1) {
@@ -114,7 +113,11 @@ static inline bool canCaptureAgain(int x, int y) {
     for (const auto& direction : directions) {
         int newX = x + direction.first;
         int newY = y + direction.second;
-        if (newX >= 0 && newX < BOARD_SIZE && newY >= 0 && newY < BOARD_SIZE) {
+        if (newX >= 0 and newX < BOARD_SIZE and newY >= 0 and newY < BOARD_SIZE and
+                (((piece == BLACK || piece == BLACK_KING) and board[x + (direction.first/2)][y + (direction.second/2)] == WHITE
+                or board[x + (direction.first/2)][y + (direction.second/2)] == WHITE_KING) ||
+                ((piece == WHITE || piece == WHITE_KING) and board[x + (direction.first/2)][y + (direction.second/2)] == BLACK
+                or board[x + (direction.first/2)][y + (direction.second/2)] == BLACK_KING))) {
             if (isValidMove(x, y, newX, newY)) {
                 return true;
             }

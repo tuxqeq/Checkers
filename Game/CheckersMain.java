@@ -1,6 +1,8 @@
 package Game;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 
 public class CheckersMain {
 
@@ -12,16 +14,12 @@ public class CheckersMain {
         JLayeredPane layeredPane = new JLayeredPane();
         layeredPane.setPreferredSize(new Dimension(640, 640));
 
-
         // Set up the main frame
         JFrame frame = new JFrame("Game");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
         frame.setResizable(false);
 
-
-
-        //CheckersMVC checkersMVC = new CheckersMVC(jniHandler);
         // Create and configure the JTable for displaying the game board
         JTable checkersTable = new JTable();
         checkersTable.setModel(dataModel);
@@ -32,10 +30,28 @@ public class CheckersMain {
         checkersTable.setGridColor(new Color(0, 0, 0, 0)); // Invisible grid
         checkersTable.setOpaque(false);
 
-        // Add mouse listener to handle player clicks on the board
-        CheckersMouseListener listener = new CheckersMouseListener(checkersTable, jniHandler);
-        checkersTable.addMouseListener(listener);
+        checkersTable.setFocusable(true);
 
+        // Add mouse listener to handle player clicks on the board
+        CheckersMouseListener listener = new CheckersMouseListener(checkersTable, jniHandler, view);
+        checkersTable.addMouseListener(listener);
+        checkersTable.addKeyListener(listener);
+
+        checkersTable.addKeyListener(new java.awt.event.KeyAdapter() {
+            @Override
+            public void keyPressed(java.awt.event.KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+                    listener.toggleMode();
+
+                }
+            }
+        });
+        checkersTable.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                listener.toggleMode();
+            }
+        });
         // Pass listener to view for selection tracking
         checkersBoard.setBounds(0,0,640,640);
         checkersTable.setBounds(0,0,640,640);

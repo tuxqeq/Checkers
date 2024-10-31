@@ -8,10 +8,18 @@ public class MyView extends JPanel implements TableCellRenderer {
     private int cellValue;
     private JNIHandler jni;
     private boolean isSelected = false;
+    boolean cellChoosed;
+    int selectedRow = -1;
+    int selectedCol = -1;
 
     public MyView(JNIHandler jni) {
         this.jni = jni;
         setOpaque(false);
+    }
+
+    public void setSelectedCell(int row, int col) {
+        selectedRow = row;
+        selectedCol = col;
     }
 
     @Override
@@ -21,12 +29,23 @@ public class MyView extends JPanel implements TableCellRenderer {
         }
         if ((jni.getSelectedPiece()[0] == row && jni.getSelectedPiece()[1] == column)) this.isSelected = true;
         else this.isSelected = false;
+        if (row == selectedRow && column == selectedCol) {
+            cellChoosed = true;
+        } else {
+            cellChoosed = false;
+        }
         return this;
+
     }
 
     @Override
     protected void paintComponent(Graphics g) {
+
         super.paintComponent(g);
+        if (cellChoosed) {
+            g.setColor(new Color(255,100, 200, 200));
+            g.fillRect(0,0, getWidth(), getHeight());
+        }
         // Draw pieces based on cell value
         switch (cellValue) {
             case 1: // Black piece

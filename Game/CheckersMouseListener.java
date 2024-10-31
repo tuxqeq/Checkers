@@ -1,47 +1,80 @@
 package Game;
 
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JTable;
 
-public class CheckersMouseListener extends MouseAdapter {
+public class CheckersMouseListener extends MouseAdapter implements KeyListener {
     private JTable jTable;
     private JNIHandler jni;
-    private int selectedRow = -1;
-    private int selectedCol = -1;
-    private final List<RepaintEventListener> listeners = new ArrayList<>();
+    private int selectedRow = 0;
+    private int selectedCol = 0;
+    private boolean keyboardMode = false;
+    private MyView view;// Tracks if keyboard mode is active
 
-    public CheckersMouseListener(JTable jTable, JNIHandler jni) {
+    public CheckersMouseListener(JTable jTable, JNIHandler jni, MyView view) {
         this.jTable = jTable;
         this.jni = jni;
+        this.view = view;
     }
 
+    // Enable or disable keyboard mode
+    public void toggleMode() {
+        keyboardMode = !keyboardMode;
+        if (keyboardMode) {
+            view.setSelectedCell(selectedRow, selectedCol);
+            jTable.repaint();
+        }
+        System.out.println("Mode switched to " + (keyboardMode ? "Keyboard" : "Mouse"));
+    }
+
+    // Handle mouse clicks only when in mouse mode
     @Override
     public void mousePressed(MouseEvent e) {
+        if (keyboardMode) return; // Ignore mouse clicks if in keyboard mode
+
         int row = e.getY() / jTable.getRowHeight();
         int col = e.getX() / jTable.getColumnModel().getColumn(0).getWidth();
 
         selectedRow = row;
         selectedCol = col;
-
         jni.handleClick(row, col);
+        jTable.repaint();
+    }
 
+    // Handle key presses only when in keyboard mode
+    @Override
+    public void keyPressed(KeyEvent e) {
+        if (!keyboardMode) return; // Ignore key events if in mouse mode
 
-        RepaintEvent event = new RepaintEvent(this);
-        for (RepaintEventListener listener : listeners) {
-            listener.onMouseCLick(event);
+        switch (e.getKeyCode()) {
+            case KeyEvent.VK_UP:
+                selectedRow = Math.max(0, selectedRow - 1);
+                break;
+            case KeyEvent.VK_DOWN:
+                selectedRow = Math.min(jTable.getRowCount() - 1, selectedRow + 1);
+                break;
+            case KeyEvent.VK_LEFT:
+                selectedCol = Math.max(0, selectedCol - 1);
+                break;
+            case KeyEvent.VK_RIGHT:
+                selectedCol = Math.min(jTable.getColumnCount() - 1, selectedCol + 1);
+                break;
+            case KeyEvent.VK_ENTER:
+                jni.handleClick(selectedRow, selectedCol);
+                break;
+            case KeyEvent.VK_SPACE:
+                toggleMode(); // Switch between keyboard and mouse mode
+                break;
         }
-
-        jTable.repaint(); //TODO event handling
+        view.setSelectedCell(selectedRow, selectedCol);
+        jTable.repaint();
     }
 
-    public int getSelectedRow() {
-        return selectedRow;
-    }
-
-    public int getSelectedCol() {
-        return selectedCol;
-    }
+    @Override public void keyReleased(KeyEvent e) {}
+    @Override public void keyTyped(KeyEvent e) {}
 }

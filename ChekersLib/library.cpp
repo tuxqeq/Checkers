@@ -43,26 +43,25 @@ static inline auto kingMove(int startX, int startY, int endX, int endY) {
 
     int x = startX + dx;
     int y = startY + dy;
-    bool foundOpponent = false;
 
     while (x != endX && y != endY) {
         if (board[x][y] != EMPTY) {
-            if (foundOpponent) return result; // Invalid if more than one piece in the way
-            foundOpponent = true;
             result.push_back({x, y});
+            if (result.size() > 1) return result;
         }
         x += dx;
         y += dy;
     }
 
     // Valid only if exactly one opponent piece was found
-    return foundOpponent ? result : std::vector<std::pair<int, int>>{};
+    return result;
 }
 
 // Check if the move is valid, allowing backward jumps but restricting regular checkers from moving backward without capturing
 static inline bool isValidMove(int startX, int startY, int endX, int endY) {
     Piece piece = board[startX][startY];
     if (piece == EMPTY || board[endX][endY] != EMPTY) return false;
+    if(endX > BOARD_SIZE or endY > BOARD_SIZE or endX < 0 or endY < 0) return false;
 
     // Ensure the move is made by the correct player
     if ((piece == BLACK || piece == BLACK_KING) and currentTurn != BLACK) return false;
@@ -100,20 +99,21 @@ static inline bool isValidMove(int startX, int startY, int endX, int endY) {
                 return false; // Other pieces blocking path make the move invalid
             }
         }
-        return opponentCount == 1;  // Only allow if exactly one opponent is in the way
+        if (opponentCount == 1 or opponentCount == 0) {
+            return true;
+        }
+
     }
-
-
     return false;
 }
 
 static inline bool canCaptureAgain(int x, int y) {
     Piece piece = board[x][y];
-    int directions[4][2] = { {2, 2}, {2, -2}, {-2, 2}, {-2, -2} };
+    std::vector<std::pair<int, int>> directions = { {2, 2}, {2, -2}, {-2, 2}, {-2, -2} };
 
     for (const auto& direction : directions) {
-        int newX = x + direction[0];
-        int newY = y + direction[1];
+        int newX = x + direction.first;
+        int newY = y + direction.second;
         if (newX >= 0 && newX < BOARD_SIZE && newY >= 0 && newY < BOARD_SIZE) {
             if (isValidMove(x, y, newX, newY)) {
                 return true;
@@ -164,7 +164,7 @@ static inline void handleClick(int x, int y) {
         }
     } else {
         if (isValidMove(selectedX, selectedY, x, y)) {
-            bool wasCapture = (abs(x - selectedX) == 2 && abs(y - selectedY) == 2);
+            bool wasCapture = (abs(x - selectedX) >= 2 && abs(y - selectedY) >= 2);
             if (wasCapture) {
                 capturePiece(selectedX, selectedY, x, y);  // Capture move
             }
@@ -184,9 +184,9 @@ static inline void handleClick(int x, int y) {
                 pieceSelected = false;
                 switchTurn();  // Only switch turns after the final capture
             }
-        } else {
+        } /*else {
             pieceSelected = false;  // Deselect if move is invalid
-        }
+        }*/
     }
 }
 

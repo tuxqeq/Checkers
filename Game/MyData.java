@@ -2,7 +2,7 @@ package Game;
 
 import javax.swing.table.AbstractTableModel;
 
-class MyData extends AbstractTableModel {
+public class MyData extends AbstractTableModel {
     private JNIHandler jni;
 
     public MyData(JNIHandler jni) {

@@ -20,6 +20,8 @@ public class CheckersMain {
         frame.setResizable(false);
 
 
+
+        //CheckersMVC checkersMVC = new CheckersMVC(jniHandler);
         // Create and configure the JTable for displaying the game board
         JTable checkersTable = new JTable();
         checkersTable.setModel(dataModel);
@@ -35,18 +37,14 @@ public class CheckersMain {
         checkersTable.addMouseListener(listener);
 
         // Pass listener to view for selection tracking
-        //view.setMouseListener(listener);
         checkersBoard.setBounds(0,0,640,640);
         checkersTable.setBounds(0,0,640,640);
 
         // Add the table to the main frame
         layeredPane.add(checkersBoard, JLayeredPane.FRAME_CONTENT_LAYER);
         layeredPane.add(checkersTable, JLayeredPane.MODAL_LAYER);
-        /*frame.add(checkersBoard, BorderLayout.CENTER);
-        frame.add(checkersTable, BorderLayout.CENTER);*/
         frame.setSize(640, 668);
         frame.add(layeredPane, BorderLayout.CENTER);
-        //frame.setContentPane(checkersBoard);
         frame.setVisible(true);
 
         // Initialize the game board via JNI

@@ -2,6 +2,8 @@ package Game;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.JTable;
 
 public class CheckersMouseListener extends MouseAdapter {
@@ -9,6 +11,7 @@ public class CheckersMouseListener extends MouseAdapter {
     private JNIHandler jni;
     private int selectedRow = -1;
     private int selectedCol = -1;
+    private final List<RepaintEventListener> listeners = new ArrayList<>();
 
     public CheckersMouseListener(JTable jTable, JNIHandler jni) {
         this.jTable = jTable;
@@ -24,6 +27,12 @@ public class CheckersMouseListener extends MouseAdapter {
         selectedCol = col;
 
         jni.handleClick(row, col);
+
+
+        RepaintEvent event = new RepaintEvent(this);
+        for (RepaintEventListener listener : listeners) {
+            listener.onMouseCLick(event);
+        }
 
         jTable.repaint(); //TODO event handling
     }

@@ -4,7 +4,7 @@ import javax.swing.*;
 import javax.swing.table.TableCellRenderer;
 import java.awt.*;
 
-class MyView extends JPanel implements TableCellRenderer {
+public class MyView extends JPanel implements TableCellRenderer {
     private int cellValue;
     private JNIHandler jni;
     private boolean isSelected = false;

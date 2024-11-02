@@ -10,13 +10,14 @@ import java.awt.event.MouseEvent;
 public class CheckersMain implements BoardChangeListener {
 
     private JTable checkersTable;
+    JNIHandler jniHandler = new JNIHandler();
 
     public static void main(String[] args) {
         new CheckersMain().startGame();
     }
 
     public void startGame() {
-        JNIHandler jniHandler = new JNIHandler();
+
         MyData dataModel = new MyData(jniHandler);
         CheckersBoard checkersBoard = new CheckersBoard();
         JLayeredPane layeredPane = new JLayeredPane();
@@ -85,6 +86,13 @@ public class CheckersMain implements BoardChangeListener {
 
     @Override
     public void onBoardChanged() {
-        checkersTable.repaint();
+        int[][] changedCells = jniHandler.getChanges();
+        MyData dataModel = (MyData) checkersTable.getModel();
+
+        for (int[] cell : changedCells) {
+            int row = cell[0];
+            int col = cell[1];
+            dataModel.fireTableCellUpdated(row, col);
+        }
     }
 }

@@ -10,6 +10,7 @@ static inline std::vector<std::vector<Piece>> board(BOARD_SIZE, std::vector<Piec
 static inline bool pieceSelected = false;
 static inline int selectedX = -1, selectedY = -1;
 static inline Piece currentTurn = WHITE;
+static inline std::vector<std::pair<int, int>> lastMoveChanges;
 
 
 static inline void initializeBoard() {
@@ -21,6 +22,7 @@ static inline void initializeBoard() {
     for (int i = 0; i < 3; ++i) {
         for (int j = 0; j < BOARD_SIZE; ++j) {
             if ((i + j) % 2 == 1) {
+                lastMoveChanges.push_back({i, j});
                 board[i][j] = BLACK;
             }
         }
@@ -28,6 +30,7 @@ static inline void initializeBoard() {
     for (int i = 5; i < BOARD_SIZE; ++i) {
         for (int j = 0; j < BOARD_SIZE; ++j) {
             if ((i + j) % 2 == 1) {
+                lastMoveChanges.push_back({i, j});
                 board[i][j] = WHITE;
             }
         }
@@ -78,24 +81,24 @@ static inline bool isValidMove(int startX, int startY, int endX, int endY) {
     if (piece == EMPTY || board[endX][endY] != EMPTY) return false;
     if(endX > BOARD_SIZE or endY > BOARD_SIZE or endX < 0 or endY < 0) return false;
 
-    if ((piece == BLACK || piece == BLACK_KING) and currentTurn != BLACK) return false;
-    if ((piece == WHITE || piece == WHITE_KING) and currentTurn != WHITE) return false;
+    if ((piece == BLACK || piece == BLACK_KING) && currentTurn != BLACK) return false;
+    if ((piece == WHITE || piece == WHITE_KING) && currentTurn != WHITE) return false;
 
     int dx = endX - startX;
     int dy = endY - startY;
 
-    if ((piece == WHITE and board[endX][endY] == EMPTY) and dx == -1 and abs(dy) == 1) return true;
-    if ((piece == BLACK and board[endX][endY] == EMPTY) and dx == 1 and abs(dy) == 1) return true;
+    if ((piece == WHITE && board[endX][endY] == EMPTY) && dx == -1 && abs(dy) == 1) return true;
+    if ((piece == BLACK && board[endX][endY] == EMPTY) && dx == 1 && abs(dy) == 1) return true;
 
-    bool isJump = (abs(dx) == 2 and abs(dy) == 2) and (piece == BLACK or piece == WHITE);
+    bool isJump = (abs(dx) == 2 && abs(dy) == 2) && (piece == BLACK or piece == WHITE);
 
     if (isJump) {
         int midX = (startX + endX) / 2;
         int midY = (startY + endY) / 2;
         Piece middlePiece = board[midX][midY];
 
-        if ((piece == BLACK) and (middlePiece == WHITE || middlePiece == WHITE_KING)) return true;
-        if ((piece == WHITE) and (middlePiece == BLACK || middlePiece == BLACK_KING)) return true;
+        if ((piece == BLACK) && (middlePiece == WHITE || middlePiece == WHITE_KING)) return true;
+        if ((piece == WHITE) && (middlePiece == BLACK || middlePiece == BLACK_KING)) return true;
     }
     auto kingMv = kingMove(startX, startY, endX, endY);
 
@@ -126,11 +129,11 @@ static inline bool canCaptureAgain(int x, int y) {
     for (const auto& direction : directions) {
         int newX = x + direction.first;
         int newY = y + direction.second;
-        if (newX >= 0 and newX < BOARD_SIZE and newY >= 0 and newY < BOARD_SIZE and
-                (((piece == BLACK || piece == BLACK_KING) and board[x + (direction.first/2)][y + (direction.second/2)] == WHITE
-                or board[x + (direction.first/2)][y + (direction.second/2)] == WHITE_KING) ||
-                ((piece == WHITE || piece == WHITE_KING) and board[x + (direction.first/2)][y + (direction.second/2)] == BLACK
-                or board[x + (direction.first/2)][y + (direction.second/2)] == BLACK_KING))) {
+        if (newX >= 0 && newX < BOARD_SIZE && newY >= 0 && newY < BOARD_SIZE &&
+                (((piece == BLACK || piece == BLACK_KING) && board[x + (direction.first/2)][y + (direction.second/2)] == WHITE
+                || board[x + (direction.first/2)][y + (direction.second/2)] == WHITE_KING) ||
+                ((piece == WHITE || piece == WHITE_KING) && board[x + (direction.first/2)][y + (direction.second/2)] == BLACK
+                || board[x + (direction.first/2)][y + (direction.second/2)] == BLACK_KING))) {
             if (isValidMove(x, y, newX, newY)) {
                 return true;
             }
@@ -194,6 +197,8 @@ static inline bool canMove(int x, int y) {
 }
 
 static inline void handleClick(int x, int y) {
+    lastMoveChanges.clear();  // Clear previous move changes
+
     bool captureAvailable = hasCaptureMove();
 
     if (!pieceSelected) {
@@ -212,12 +217,28 @@ static inline void handleClick(int x, int y) {
         bool isMoveCapture = (abs(x - selectedX) >= 2 && abs(y - selectedY) >= 2);
 
         if ((!captureAvailable || isMoveCapture) && isValidMove(selectedX, selectedY, x, y)) {
+            lastMoveChanges.push_back({selectedX, selectedY});  // Track the start position
             if (isMoveCapture) {
                 capturePiece(selectedX, selectedY, x, y);
+
+                // Track each captured piece in `lastMoveChanges`
+                auto kingMv = kingMove(selectedX, selectedY, x, y);
+                if (!kingMv.empty()) {
+                    for (const auto &pos : kingMv) {
+                        lastMoveChanges.push_back(pos);  // Track each captured position
+                    }
+                } else {
+                    int midX = (selectedX + x) / 2;
+                    int midY = (selectedY + y) / 2;
+                    lastMoveChanges.push_back({midX, midY});
+                }
             }
+            lastMoveChanges.push_back({x, y});  // Track the end position
+
             board[x][y] = board[selectedX][selectedY];
             board[selectedX][selectedY] = EMPTY;
 
+            // Check if the piece should be promoted to king
             if ((x == BOARD_SIZE - 1 && board[x][y] == BLACK) || (x == 0 && board[x][y] == WHITE)) {
                 board[x][y] = (board[x][y] == BLACK) ? BLACK_KING : WHITE_KING;
             }
@@ -269,5 +290,22 @@ JNIEXPORT jint JNICALL Java_Game_JNIHandler_getCurrentPlayer(JNIEnv *env, jobjec
 
 JNIEXPORT jint JNICALL Java_Game_JNIHandler_getWinner(JNIEnv *env, jobject obj){
     jint result = checkWinner();
+    return result;
+}
+
+JNIEXPORT jobjectArray JNICALL Java_Game_JNIHandler_getChanges(JNIEnv *env, jobject obj){
+    jclass intArrayClass = env->FindClass("[I");  // Class for int arrays
+    jobjectArray result = env->NewObjectArray(lastMoveChanges.size(), intArrayClass, nullptr);
+
+    for (size_t i = 0; i < lastMoveChanges.size(); ++i) {
+        jint coords[2] = { lastMoveChanges[i].first, lastMoveChanges[i].second };
+
+        jintArray coordArray = env->NewIntArray(2);
+        env->SetIntArrayRegion(coordArray, 0, 2, coords);
+        env->SetObjectArrayElement(result, i, coordArray);
+
+        env->DeleteLocalRef(coordArray);
+    }
+
     return result;
 }

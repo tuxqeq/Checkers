@@ -55,6 +55,14 @@ JNIEXPORT jint JNICALL Java_Game_JNIHandler_getCurrentPlayer
 JNIEXPORT jint JNICALL Java_Game_JNIHandler_getWinner
         (JNIEnv *, jobject);
 
+/*
+ * Class:     Game_JNIHandler
+ * Method:    getChanges
+ * Signature: ()[[I
+ */
+JNIEXPORT jobjectArray JNICALL Java_Game_JNIHandler_getChanges
+        (JNIEnv *, jobject);
+
 #ifdef __cplusplus
 }
 #endif

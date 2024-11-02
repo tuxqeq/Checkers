@@ -46,30 +46,28 @@ public class MyView extends JPanel implements TableCellRenderer {
             g.setColor(new Color(255,100, 200, 200));
             g.fillRect(0,0, getWidth(), getHeight());
         }
-        // Draw pieces based on cell value
         switch (cellValue) {
-            case 1: // Black piece
+            case 1:
                     g.setColor(Color.BLACK);
                     g.fillOval(10, 10, getWidth() - 20, getHeight() - 20);
                 break;
-            case 2:// White piece
+            case 2:
                     g.setColor(Color.WHITE);
                     g.fillOval(10, 10, getWidth() - 20, getHeight() - 20);
                 break;
-            case 3: // Black king piece
+            case 3:
                 g.setColor(Color.YELLOW);
                 g.fillOval(10, 10, getWidth() - 20, getHeight() - 20);
                 g.setColor(Color.BLACK);
                 g.fillOval(13, 13, getWidth() - 26, getHeight() - 26);
                 break;
-            case 4: // White king piece
+            case 4:
                 g.setColor(new Color(120, 70, 0 , 255));
                 g.fillOval(10, 10, getWidth() - 20, getHeight() - 20);
                 g.setColor(Color.WHITE);
                 g.fillOval(13, 13, getWidth() - 26, getHeight() - 26);
                 break;
             default:
-                // No piece
                 break;
         }
         if (isSelected) {

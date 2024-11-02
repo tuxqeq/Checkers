@@ -21,7 +21,7 @@ public class MyData extends AbstractTableModel {
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        return jni.getPieceAt(rowIndex, columnIndex); // Fetch piece state from JNI
+        return jni.getPieceAt(rowIndex, columnIndex);
     }
 
     @Override

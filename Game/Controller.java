@@ -28,7 +28,6 @@ public class Controller extends MouseAdapter implements KeyListener {
             jTable.repaint();
         }
     }
-    // Enable or disable keyboard mode
     public void toggleMode() {
         keyboardMode = !keyboardMode;
         view.setSelectedCell(-1, -1);
@@ -39,25 +38,23 @@ public class Controller extends MouseAdapter implements KeyListener {
         System.out.println("Mode switched to " + (keyboardMode ? "Keyboard" : "Mouse"));
     }
 
-    // Handle mouse clicks only when in mouse mode
     @Override
     public void mousePressed(MouseEvent e) {
-        if (keyboardMode) return; // Ignore mouse clicks if in keyboard mode
+        if (keyboardMode) return;
 
         int row = e.getY() / jTable.getRowHeight();
         int col = e.getX() / jTable.getColumnModel().getColumn(0).getWidth();
 
         selectedRow = row;
         selectedCol = col;
+        System.out.println(row + " " + col);
         jni.handleClick(row, col);
         checkWinner();
         jTable.repaint();
     }
-
-    // Handle key presses only when in keyboard mode
     @Override
     public void keyPressed(KeyEvent e) {
-        if (!keyboardMode) return; // Ignore key events if in mouse mode
+        if (!keyboardMode) return;
 
         switch (e.getKeyCode()) {
             case KeyEvent.VK_UP:

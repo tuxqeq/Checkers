@@ -292,20 +292,3 @@ JNIEXPORT jint JNICALL Java_Game_JNIHandler_getWinner(JNIEnv *env, jobject obj){
     jint result = checkWinner();
     return result;
 }
-
-JNIEXPORT jobjectArray JNICALL Java_Game_JNIHandler_getChanges(JNIEnv *env, jobject obj){
-    jclass intArrayClass = env->FindClass("[I");  // Class for int arrays
-    jobjectArray result = env->NewObjectArray(lastMoveChanges.size(), intArrayClass, nullptr);
-
-    for (size_t i = 0; i < lastMoveChanges.size(); ++i) {
-        jint coords[2] = { lastMoveChanges[i].first, lastMoveChanges[i].second };
-
-        jintArray coordArray = env->NewIntArray(2);
-        env->SetIntArrayRegion(coordArray, 0, 2, coords);
-        env->SetObjectArrayElement(result, i, coordArray);
-
-        env->DeleteLocalRef(coordArray);
-    }
-
-    return result;
-}

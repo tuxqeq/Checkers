@@ -35,6 +35,7 @@ public class Controller extends MouseAdapter implements KeyListener {
         keyboardMode = !keyboardMode;
         view.setSelectedCell(-1, -1);
         if (keyboardMode) {
+            selectedCol = selectedRow = 0;
             view.setSelectedCell(selectedRow, selectedCol);
             notifyBoardChange();
         }

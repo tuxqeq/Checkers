@@ -9,7 +9,6 @@ public class MyView extends JPanel implements TableCellRenderer {
     private JNIHandler jni;
     private boolean isSelected = false;
     boolean cellChoosed;
-    boolean isChanged;
     int selectedRow = -1;
     int selectedCol = -1;
 
@@ -23,23 +22,12 @@ public class MyView extends JPanel implements TableCellRenderer {
         selectedCol = col;
     }
 
-    public void setChanged(int row, int column) {
-        for (int i = 0; i < jni.getChanges().length; i++) {
-            if(jni.getChanges()[i][0] == row && jni.getChanges()[i][1] == column) {
-                isChanged = true;
-                break;
-            } else {
-                isChanged = false;
-            }
-        }
-    }
 
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
         if (value instanceof Integer) {
             cellValue = (Integer) value;
         }
-        setChanged(row, column);
         if ((jni.getSelectedPiece()[0] == row && jni.getSelectedPiece()[1] == column)) this.isSelected = true;
         else this.isSelected = false;
         if (row == selectedRow && column == selectedCol) {

@@ -6,6 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.util.Arrays;
 
 public class CheckersMain implements BoardChangeListener {
 
@@ -86,13 +87,6 @@ public class CheckersMain implements BoardChangeListener {
 
     @Override
     public void onBoardChanged() {
-        int[][] changedCells = jniHandler.getChanges();
-        MyData dataModel = (MyData) checkersTable.getModel();
-
-        for (int[] cell : changedCells) {
-            int row = cell[0];
-            int col = cell[1];
-            dataModel.fireTableCellUpdated(row, col);
-        }
+        checkersTable.repaint();
     }
 }

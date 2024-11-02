@@ -9,5 +9,4 @@ public class JNIHandler {
     public native int getPieceAt(int x, int y);
     public native int getCurrentPlayer();
     public native int getWinner();
-    public native int[][] getChanges();
 }

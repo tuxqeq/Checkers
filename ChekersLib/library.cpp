@@ -13,7 +13,11 @@ static inline Piece currentTurn = WHITE;
 
 
 static inline void initializeBoard() {
-    board = std::vector<std::vector<Piece>>(BOARD_SIZE, std::vector<Piece>(BOARD_SIZE, EMPTY));
+    for (int i = 0; i < BOARD_SIZE; ++i) {
+        for (int j = 0; j < BOARD_SIZE; ++j) {
+            board[i][j] = EMPTY;
+        }
+    }
     for (int i = 0; i < 3; ++i) {
         for (int j = 0; j < BOARD_SIZE; ++j) {
             if ((i + j) % 2 == 1) {
@@ -29,7 +33,11 @@ static inline void initializeBoard() {
         }
     }
     currentTurn = WHITE;
+    selectedX = -1;
+    selectedY = -1;
+    pieceSelected = false;
 }
+
 
 static inline int checkWinner(){
     int blackCount = 0;

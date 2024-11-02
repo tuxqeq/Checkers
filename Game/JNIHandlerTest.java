@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
 
 public class JNIHandlerTest {
 
@@ -124,7 +123,7 @@ public class JNIHandlerTest {
         jniHandler.handleClick(4, 3); // White captures the first black piece
         jniHandler.handleClick(2, 5);
 
-        assertEquals(2, jniHandler.getPieceAt(2, 5), "White piece should have jumped to (2, 5)");
+        assertEquals(2, jniHandler.getPieceAt(2, 5), "White piece should have jumped to (2, 3)");
         assertEquals(0, jniHandler.getPieceAt(3, 4), "Captured piece at (3, 4) should be empty");
         assertArrayEquals(new int[]{2, 5}, jniHandler.getSelectedPiece(), "Selected piece should match coordinates (2, 5)");
 
@@ -133,6 +132,8 @@ public class JNIHandlerTest {
         assertEquals(2, jniHandler.getPieceAt(4, 7), "White piece should have jumped to (1, 5)");
         assertEquals(0, jniHandler.getPieceAt(3, 6), "Captured piece at (2, 4) should be empty");
     }
+
+
 
     @Test
     public void testMandatoryCapture() {
@@ -148,48 +149,115 @@ public class JNIHandlerTest {
         assertArrayEquals(new int[]{-1, -1}, jniHandler.getSelectedPiece(), "The piece at (5, 6) should not be selected");
 
         jniHandler.handleClick(4, 3);
-        jniHandler.handleClick(3, 2);
+        jniHandler.handleClick(2, 5); // Try moving without capture
 
-        assertEquals(2, jniHandler.getPieceAt(4, 3), "White piece should stay at (4, 3) since capture is mandatory");
+        assertEquals(2, jniHandler.getPieceAt(2, 5), "White piece should stay at (4, 2) since capture is mandatory");
     }
 
-    /*@Test
+    @Test
     public void testWhitePromotionToKing() {
-        jniHandler.handleClick(5, 4);
-        jniHandler.handleClick(4, 5);
-        jniHandler.handleClick(2, 7);
-        jniHandler.handleClick(3, 6);
-        jniHandler.handleClick(4, 5);
-        jniHandler.handleClick(2, 7);
-        jniHandler.handleClick(2, 5);
-        jniHandler.handleClick(3, 4);
-        jniHandler.handleClick(5, 2);
-        jniHandler.handleClick(4, 1);
-        jniHandler.handleClick(1, 4);
-        jniHandler.handleClick(2, 5);
-        jniHandler.handleClick(6, 3);
-        jniHandler.handleClick(5, 2);
-        jniHandler.handleClick(0, 5);
-        jniHandler.handleClick(1, 4);
-        jniHandler.handleClick(2, 7);
-        jniHandler.handleClick(0, 5);
+        int[][] moves = {
+                {5, 4}, {4, 5}, {2, 7}, {3, 6},
+                {4, 5}, {2, 7}, {2, 5}, {3, 4},
+                {5, 2}, {4, 1}, {1, 4}, {2, 5},
+                {6, 3}, {5, 2}, {0, 5}, {1, 4},
+                {2, 7}, {0, 5}
+        };
+        for (int[] move : moves) {
+            jniHandler.handleClick(move[0], move[1]);
+        }
 
-        assertEquals(3, jniHandler.getPieceAt(0, 5), "White piece should be promoted to White King at (0, 5)");
-    }*/
+        assertEquals(4, jniHandler.getPieceAt(0, 5), "White piece should be promoted to White King at (0, 5)");
+    }
+
+    @Test
+    public void testWhiteKingCheckingOver2() {
+        int[][] moves = {
+                {5, 4}, {4, 5}, {2, 7}, {3, 6},
+                {4, 5}, {2, 7}, {2, 5}, {3, 4},
+                {5, 2}, {4, 1}, {1, 4}, {2, 5},
+                {6, 3}, {5, 2}, {0, 5}, {1, 4},
+                {2, 7}, {0, 5}, {2, 5}, {3, 6},
+                {0,5}, {3, 2}
+        };
+        for (int[] move : moves) {
+            jniHandler.handleClick(move[0], move[1]);
+        }
+
+        assertEquals(4, jniHandler.getPieceAt(0, 5), "White King should still be at (0, 5)");
+    }
+
+    @Test
+    public void testWhiteKingChecking() {
+        int[][] moves = {
+                {5, 4}, {4, 5}, {2, 7}, {3, 6},
+                {4, 5}, {2, 7}, {2, 5}, {3, 4},
+                {5, 2}, {4, 1}, {1, 4}, {2, 5},
+                {6, 3}, {5, 2}, {0, 5}, {1, 4},
+                {2, 7}, {0, 5}, {2, 5}, {3, 6},
+                {7, 4}, {6, 3}, {1, 4}, {2, 5},
+                {0, 5}, {3, 2}
+
+        };
+        for (int[] move : moves) {
+            jniHandler.handleClick(move[0], move[1]);
+        }
+
+        assertEquals(4, jniHandler.getPieceAt(3, 2), "White King should be at (3, 2)");
+        assertEquals(0, jniHandler.getPieceAt(2, 3), "White king checked the black piece at (2, 3)");
+    }
 
     @Test
     public void testBlackPromotionToKing() {
-        jniHandler.handleClick(2, 1); // Move black piece
-        jniHandler.handleClick(3, 2);
+        int[][] moves = {
+                {5, 6}, {4, 7}, {2, 3}, {3, 2},
+                {5, 0}, {4, 1}, {3, 2}, {5, 0},
+                {5, 2}, {4, 3}, {1, 4}, {2, 3},
+                {6, 3}, {5, 2}, {0, 5}, {1, 4},
+                {7, 2}, {6, 3}, {5, 0}, {7, 2}
+        };
+        for (int[] move : moves) {
+            jniHandler.handleClick(move[0], move[1]);
+        }
 
-        jniHandler.handleClick(5, 1); // Move white piece to avoid interference
-        jniHandler.handleClick(4, 2);
-
-        jniHandler.handleClick(6, 1); // Move black piece to promotion row
-        jniHandler.handleClick(7, 0); // Black promoted to king
-
-        assertEquals(4, jniHandler.getPieceAt(7, 0), "Black piece should be promoted to Black King at (7, 0)");
+        assertEquals(3, jniHandler.getPieceAt(7, 2), "Black piece should be promoted to Black King at (7, 2)");
     }
 
-    // More tests can be added here to thoroughly cover all edge cases
+    @Test
+    public void testBlackKingCheckingOver2() {
+        int[][] moves = {
+                {5, 6}, {4, 7}, {2, 3}, {3, 2},
+                {5, 0}, {4, 1}, {3, 2}, {5, 0},
+                {5, 2}, {4, 3}, {1, 4}, {2, 3},
+                {6, 3}, {5, 2}, {0, 5}, {1, 4},
+                {7, 2}, {6, 3}, {5, 0}, {7, 2},
+                {5, 2}, {4, 1}, {7, 2}, {4, 5}
+        };
+        for (int[] move : moves) {
+            jniHandler.handleClick(move[0], move[1]);
+        }
+
+        assertEquals(3, jniHandler.getPieceAt(7, 2), "Black King should still be at (7, 2)");
+    }
+
+    @Test
+    public void testBlackKingChecking() {
+        int[][] moves = {
+                {5, 6}, {4, 7}, {2, 3}, {3, 2},
+                {5, 0}, {4, 1}, {3, 2}, {5, 0},
+                {5, 2}, {4, 3}, {1, 4}, {2, 3},
+                {6, 3}, {5, 2}, {0, 5}, {1, 4},
+                {7, 2}, {6, 3}, {5, 0}, {7, 2},
+                {5, 2}, {4, 1}, {2, 1}, {3, 0},
+                {6, 3}, {5, 2}, {7, 2}, {3, 6}
+
+        };
+        for (int[] move : moves) {
+            jniHandler.handleClick(move[0], move[1]);
+        }
+
+        assertEquals(3, jniHandler.getPieceAt(3, 6), "Black King should be at (3, 6)");
+        assertEquals(0, jniHandler.getPieceAt(5, 4), "Black king checked the white piece at (5, 4)");
+    }
+
 }

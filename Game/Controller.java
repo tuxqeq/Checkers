@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JTable;
 
-public class CheckersMouseListener extends MouseAdapter implements KeyListener {
+public class Controller extends MouseAdapter implements KeyListener {
     private JTable jTable;
     private JNIHandler jni;
     private int selectedRow = 0;
@@ -16,7 +16,7 @@ public class CheckersMouseListener extends MouseAdapter implements KeyListener {
     private boolean keyboardMode = false;
     private MyView view;
 
-    public CheckersMouseListener(JTable jTable, JNIHandler jni, MyView view) {
+    public Controller(JTable jTable, JNIHandler jni, MyView view) {
         this.jTable = jTable;
         this.jni = jni;
         this.view = view;
@@ -34,6 +34,7 @@ public class CheckersMouseListener extends MouseAdapter implements KeyListener {
     // Enable or disable keyboard mode
     public void toggleMode() {
         keyboardMode = !keyboardMode;
+        view.setSelectedCell(-1, -1);
         if (keyboardMode) {
             view.setSelectedCell(selectedRow, selectedCol);
             jTable.repaint();
@@ -76,9 +77,9 @@ public class CheckersMouseListener extends MouseAdapter implements KeyListener {
             case KeyEvent.VK_ENTER:
                 jni.handleClick(selectedRow, selectedCol);
                 break;
-            case KeyEvent.VK_SPACE:
+            /*case KeyEvent.VK_SPACE:
                 toggleMode(); // Switch between keyboard and mouse mode
-                break;
+                break;*/
         }
         view.setSelectedCell(selectedRow, selectedCol);
         jTable.repaint();

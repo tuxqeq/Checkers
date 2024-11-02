@@ -3,7 +3,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
-
+//events and unit tests
 public class CheckersMain {
 
     public static void main(String[] args) {
@@ -33,7 +33,7 @@ public class CheckersMain {
         checkersTable.setFocusable(true);
 
         // Add mouse listener to handle player clicks on the board
-        CheckersMouseListener listener = new CheckersMouseListener(checkersTable, jniHandler, view);
+        Controller listener = new Controller(checkersTable, jniHandler, view);
         checkersTable.addMouseListener(listener);
         checkersTable.addKeyListener(listener);
 

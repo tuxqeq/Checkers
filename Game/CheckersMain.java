@@ -1,14 +1,21 @@
 package Game;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
-//events and unit tests
-public class CheckersMain {
+
+public class CheckersMain implements BoardChangeListener {
+
+    private JTable checkersTable;
 
     public static void main(String[] args) {
+        new CheckersMain().startGame();
+    }
+
+    public void startGame() {
         JNIHandler jniHandler = new JNIHandler();
         MyData dataModel = new MyData(jniHandler);
         CheckersBoard checkersBoard = new CheckersBoard();
@@ -21,7 +28,7 @@ public class CheckersMain {
         frame.setLayout(new BorderLayout());
         frame.setResizable(false);
 
-        JTable checkersTable = new JTable();
+        checkersTable = new JTable();
         checkersTable.setModel(dataModel);
         MyView view = new MyView(jniHandler);
         checkersTable.setDefaultRenderer(Integer.class, view);
@@ -35,14 +42,14 @@ public class CheckersMain {
             @Override
             public void actionPerformed(ActionEvent e) {
                 JOptionPane.showMessageDialog(frame,
-                        (jniHandler.getCurrentPlayer() == 0? "Black" : "White") + " gave up\n" +
-                        "Winner is " + (jniHandler.getCurrentPlayer() == 0? "White" : "Black"));
+                        (jniHandler.getCurrentPlayer() == 0 ? "Black" : "White") + " gave up\n" +
+                                "Winner is " + (jniHandler.getCurrentPlayer() == 0 ? "White" : "Black"));
                 jniHandler.initializeGame();
-                checkersTable.repaint();
+                onBoardChanged(); // Notify repaint after reset
             }
         });
 
-        Controller listener = new Controller(checkersTable, jniHandler, view);
+        Controller listener = new Controller(checkersTable, jniHandler, view, this);
         checkersTable.addMouseListener(listener);
         checkersTable.addKeyListener(listener);
 
@@ -51,18 +58,19 @@ public class CheckersMain {
             public void keyPressed(java.awt.event.KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_SPACE) {
                     listener.toggleMode();
-
                 }
             }
         });
+
         checkersTable.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 listener.toggleModeMouse();
             }
         });
-        checkersBoard.setBounds(0,0,640,640);
-        checkersTable.setBounds(0,0,640,640);
+
+        checkersBoard.setBounds(0, 0, 640, 640);
+        checkersTable.setBounds(0, 0, 640, 640);
 
         layeredPane.add(checkersBoard, JLayeredPane.FRAME_CONTENT_LAYER);
         layeredPane.add(checkersTable, JLayeredPane.MODAL_LAYER);
@@ -73,5 +81,10 @@ public class CheckersMain {
         frame.setVisible(true);
 
         jniHandler.initializeGame();
+    }
+
+    @Override
+    public void onBoardChanged() {
+        checkersTable.repaint();
     }
 }

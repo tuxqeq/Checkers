@@ -13,27 +13,30 @@ public class Controller extends MouseAdapter implements KeyListener {
     private int selectedCol = 0;
     private boolean keyboardMode = false;
     private MyView view;
+    private BoardChangeListener boardChangeListener;
 
-    public Controller(JTable jTable, JNIHandler jni, MyView view) {
+    public Controller(JTable jTable, JNIHandler jni, MyView view, BoardChangeListener boardChangeListener) {
         this.jTable = jTable;
         this.jni = jni;
         this.view = view;
+        this.boardChangeListener = boardChangeListener;
     }
 
     public void toggleModeMouse() {
-        if(keyboardMode){
+        if (keyboardMode) {
             keyboardMode = !keyboardMode;
-            System.out.println("Mode switched to " +  "Mouse");
+            System.out.println("Mode switched to " + "Mouse");
             view.setSelectedCell(-1, -1);
-            jTable.repaint();
+            notifyBoardChange();
         }
     }
+
     public void toggleMode() {
         keyboardMode = !keyboardMode;
         view.setSelectedCell(-1, -1);
         if (keyboardMode) {
             view.setSelectedCell(selectedRow, selectedCol);
-            jTable.repaint();
+            notifyBoardChange();
         }
         System.out.println("Mode switched to " + (keyboardMode ? "Keyboard" : "Mouse"));
     }
@@ -50,8 +53,9 @@ public class Controller extends MouseAdapter implements KeyListener {
         System.out.println(row + " " + col);
         jni.handleClick(row, col);
         checkWinner();
-        jTable.repaint();
+        notifyBoardChange();
     }
+
     @Override
     public void keyPressed(KeyEvent e) {
         if (!keyboardMode) return;
@@ -75,14 +79,20 @@ public class Controller extends MouseAdapter implements KeyListener {
                 break;
         }
         view.setSelectedCell(selectedRow, selectedCol);
-        jTable.repaint();
+        notifyBoardChange();
     }
 
-    public void checkWinner(){
-        if (jni.getWinner()!= -1){
-            JOptionPane.showMessageDialog(null, "Winner is " + (jni.getWinner() == 0? "White" : "Black"));
+    private void checkWinner() {
+        if (jni.getWinner() != -1) {
+            JOptionPane.showMessageDialog(null, "Winner is " + (jni.getWinner() == 0 ? "White" : "Black"));
             jni.initializeGame();
-            jTable.repaint();
+            notifyBoardChange(); // Notify repaint after reset
+        }
+    }
+
+    private void notifyBoardChange() {
+        if (boardChangeListener != null) {
+            boardChangeListener.onBoardChanged();
         }
     }
 

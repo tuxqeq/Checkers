@@ -4,9 +4,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
-import java.util.List;
-import javax.swing.JTable;
+import javax.swing.*;
 
 public class Controller extends MouseAdapter implements KeyListener {
     private JTable jTable;
@@ -21,7 +19,6 @@ public class Controller extends MouseAdapter implements KeyListener {
         this.jni = jni;
         this.view = view;
     }
-
 
     public void toggleModeMouse() {
         if(keyboardMode){
@@ -53,6 +50,7 @@ public class Controller extends MouseAdapter implements KeyListener {
         selectedRow = row;
         selectedCol = col;
         jni.handleClick(row, col);
+        checkWinner();
         jTable.repaint();
     }
 
@@ -76,13 +74,19 @@ public class Controller extends MouseAdapter implements KeyListener {
                 break;
             case KeyEvent.VK_ENTER:
                 jni.handleClick(selectedRow, selectedCol);
+                checkWinner();
                 break;
-            /*case KeyEvent.VK_SPACE:
-                toggleMode(); // Switch between keyboard and mouse mode
-                break;*/
         }
         view.setSelectedCell(selectedRow, selectedCol);
         jTable.repaint();
+    }
+
+    public void checkWinner(){
+        if (jni.getWinner()!= -1){
+            JOptionPane.showMessageDialog(null, "Winner is " + (jni.getWinner() == 0? "White" : "Black"));
+            jni.initializeGame();
+            jTable.repaint();
+        }
     }
 
     @Override public void keyReleased(KeyEvent e) {}

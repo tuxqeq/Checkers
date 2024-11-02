@@ -14,4 +14,8 @@ public class JNIHandler {
 
     // Gets the piece at specific coordinates
     public native int getPieceAt(int x, int y);
+
+    public native int getCurrentPlayer();
+
+    public native int getWinner();
 }

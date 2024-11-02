@@ -13,7 +13,7 @@ extern "C" {
  * Signature: ()V
  */
 JNIEXPORT void JNICALL Java_Game_JNIHandler_initializeGame
-  (JNIEnv *, jobject);
+        (JNIEnv *, jobject);
 
 /*
  * Class:     Game_JNIHandler
@@ -21,7 +21,7 @@ JNIEXPORT void JNICALL Java_Game_JNIHandler_initializeGame
  * Signature: ()[I
  */
 JNIEXPORT jintArray JNICALL Java_Game_JNIHandler_getSelectedPiece
-  (JNIEnv *, jobject);
+        (JNIEnv *, jobject);
 
 /*
  * Class:     Game_JNIHandler
@@ -29,7 +29,7 @@ JNIEXPORT jintArray JNICALL Java_Game_JNIHandler_getSelectedPiece
  * Signature: (II)V
  */
 JNIEXPORT void JNICALL Java_Game_JNIHandler_handleClick
-  (JNIEnv *, jobject, jint, jint);
+        (JNIEnv *, jobject, jint, jint);
 
 /*
  * Class:     Game_JNIHandler
@@ -37,7 +37,23 @@ JNIEXPORT void JNICALL Java_Game_JNIHandler_handleClick
  * Signature: (II)I
  */
 JNIEXPORT jint JNICALL Java_Game_JNIHandler_getPieceAt
-  (JNIEnv *, jobject, jint, jint);
+        (JNIEnv *, jobject, jint, jint);
+
+/*
+ * Class:     Game_JNIHandler
+ * Method:    getCurrentPlayer
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_Game_JNIHandler_getCurrentPlayer
+        (JNIEnv *, jobject);
+
+/*
+ * Class:     Game_JNIHandler
+ * Method:    getWinner
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_Game_JNIHandler_getWinner
+        (JNIEnv *, jobject);
 
 #ifdef __cplusplus
 }

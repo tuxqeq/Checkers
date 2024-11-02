@@ -14,7 +14,8 @@ static inline Piece currentTurn = WHITE;  // Track the current player's turn
 
 // Initialize the game board
 static inline void initializeBoard() {
-    // Place white checkers
+    board = std::vector<std::vector<Piece>>(BOARD_SIZE, std::vector<Piece>(BOARD_SIZE, EMPTY));
+    // Place black checkers
     for (int i = 0; i < 3; ++i) {
         for (int j = 0; j < BOARD_SIZE; ++j) {
             if ((i + j) % 2 == 1) {
@@ -22,7 +23,7 @@ static inline void initializeBoard() {
             }
         }
     }
-    // Place black pieces
+    // Place white pieces
     for (int i = 5; i < BOARD_SIZE; ++i) {
         for (int j = 0; j < BOARD_SIZE; ++j) {
             if ((i + j) % 2 == 1) {
@@ -33,7 +34,19 @@ static inline void initializeBoard() {
     currentTurn = WHITE;
 }
 
-
+static inline int checkWinner(){
+    int blackCount = 0;
+    int whiteCount = 0;
+    for (int i = 0; i < BOARD_SIZE; ++i) {
+        for (int j = 0; j < BOARD_SIZE; ++j) {
+            if (board[i][j] == BLACK or board[i][j] == BLACK_KING) blackCount++;
+            if (board[i][j] == WHITE or board[i][j] == WHITE_KING) whiteCount++;
+        }
+    }
+    if (blackCount == 0) return 0;
+    if (whiteCount == 0) return 1;
+    return -1;
+}
 
 static inline auto kingMove(int startX, int startY, int endX, int endY) {
     int dx = (endX > startX) ? 1 : -1;
@@ -258,4 +271,14 @@ JNIEXPORT void JNICALL Java_Game_JNIHandler_handleClick(JNIEnv *env, jobject obj
 
 JNIEXPORT jint JNICALL Java_Game_JNIHandler_getPieceAt(JNIEnv *env, jobject obj, jint x, jint y) {
     return getPieceAt(x, y);
+}
+
+JNIEXPORT jint JNICALL Java_Game_JNIHandler_getCurrentPlayer(JNIEnv *env, jobject obj){
+    jint result = (currentTurn == BLACK) ? 0 : 1;
+    return result;
+}
+
+JNIEXPORT jint JNICALL Java_Game_JNIHandler_getWinner(JNIEnv *env, jobject obj){
+    jint result = checkWinner();
+    return result;
 }

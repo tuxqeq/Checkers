@@ -10,7 +10,6 @@ static inline std::vector<std::vector<Piece>> board(BOARD_SIZE, std::vector<Piec
 static inline bool pieceSelected = false;
 static inline int selectedX = -1, selectedY = -1;
 static inline Piece currentTurn = WHITE;
-//static inline std::vector<std::pair<int, int>> lastMoveChanges;
 
 
 static inline void initializeBoard() {
@@ -22,7 +21,6 @@ static inline void initializeBoard() {
     for (int i = 0; i < 3; ++i) {
         for (int j = 0; j < BOARD_SIZE; ++j) {
             if ((i + j) % 2 == 1) {
-                //lastMoveChanges.push_back({i, j});
                 board[i][j] = BLACK;
             }
         }
@@ -30,7 +28,6 @@ static inline void initializeBoard() {
     for (int i = 5; i < BOARD_SIZE; ++i) {
         for (int j = 0; j < BOARD_SIZE; ++j) {
             if ((i + j) % 2 == 1) {
-                //lastMoveChanges.push_back({i, j});
                 board[i][j] = WHITE;
             }
         }

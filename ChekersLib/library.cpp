@@ -10,7 +10,7 @@ static inline std::vector<std::vector<Piece>> board(BOARD_SIZE, std::vector<Piec
 static inline bool pieceSelected = false;
 static inline int selectedX = -1, selectedY = -1;
 static inline Piece currentTurn = WHITE;
-static inline std::vector<std::pair<int, int>> lastMoveChanges;
+//static inline std::vector<std::pair<int, int>> lastMoveChanges;
 
 
 static inline void initializeBoard() {
@@ -22,7 +22,7 @@ static inline void initializeBoard() {
     for (int i = 0; i < 3; ++i) {
         for (int j = 0; j < BOARD_SIZE; ++j) {
             if ((i + j) % 2 == 1) {
-                lastMoveChanges.push_back({i, j});
+                //lastMoveChanges.push_back({i, j});
                 board[i][j] = BLACK;
             }
         }
@@ -30,7 +30,7 @@ static inline void initializeBoard() {
     for (int i = 5; i < BOARD_SIZE; ++i) {
         for (int j = 0; j < BOARD_SIZE; ++j) {
             if ((i + j) % 2 == 1) {
-                lastMoveChanges.push_back({i, j});
+                //lastMoveChanges.push_back({i, j});
                 board[i][j] = WHITE;
             }
         }
@@ -197,7 +197,6 @@ static inline bool canMove(int x, int y) {
 }
 
 static inline void handleClick(int x, int y) {
-    lastMoveChanges.clear();  // Clear previous move changes
 
     bool captureAvailable = hasCaptureMove();
 
@@ -217,28 +216,13 @@ static inline void handleClick(int x, int y) {
         bool isMoveCapture = (abs(x - selectedX) >= 2 && abs(y - selectedY) >= 2);
 
         if ((!captureAvailable || isMoveCapture) && isValidMove(selectedX, selectedY, x, y)) {
-            lastMoveChanges.push_back({selectedX, selectedY});  // Track the start position
             if (isMoveCapture) {
                 capturePiece(selectedX, selectedY, x, y);
-
-                // Track each captured piece in `lastMoveChanges`
                 auto kingMv = kingMove(selectedX, selectedY, x, y);
-                if (!kingMv.empty()) {
-                    for (const auto &pos : kingMv) {
-                        lastMoveChanges.push_back(pos);  // Track each captured position
-                    }
-                } else {
-                    int midX = (selectedX + x) / 2;
-                    int midY = (selectedY + y) / 2;
-                    lastMoveChanges.push_back({midX, midY});
-                }
             }
-            lastMoveChanges.push_back({x, y});  // Track the end position
-
             board[x][y] = board[selectedX][selectedY];
             board[selectedX][selectedY] = EMPTY;
 
-            // Check if the piece should be promoted to king
             if ((x == BOARD_SIZE - 1 && board[x][y] == BLACK) || (x == 0 && board[x][y] == WHITE)) {
                 board[x][y] = (board[x][y] == BLACK) ? BLACK_KING : WHITE_KING;
             }

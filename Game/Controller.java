@@ -49,9 +49,6 @@ public class Controller extends MouseAdapter implements KeyListener {
         int row = e.getY() / jTable.getRowHeight();
         int col = e.getX() / jTable.getColumnModel().getColumn(0).getWidth();
 
-        selectedRow = row;
-        selectedCol = col;
-        System.out.println(row + " " + col);
         jni.handleClick(row, col);
         checkWinner();
         notifyBoardChange();
@@ -87,7 +84,7 @@ public class Controller extends MouseAdapter implements KeyListener {
         if (jni.getWinner() != -1) {
             JOptionPane.showMessageDialog(null, "Winner is " + (jni.getWinner() == 0 ? "White" : "Black"));
             jni.initializeGame();
-            notifyBoardChange(); // Notify repaint after reset
+            notifyBoardChange();
         }
     }
 

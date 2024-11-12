@@ -46,7 +46,7 @@ public class CheckersMain implements BoardChangeListener {
                         (jniHandler.getCurrentPlayer() == 0 ? "Black" : "White") + " gave up\n" +
                                 "Winner is " + (jniHandler.getCurrentPlayer() == 0 ? "White" : "Black"));
                 jniHandler.initializeGame();
-                onBoardChanged(); // Notify repaint after reset
+                onBoardChanged();
             }
         });
 
